@@ -10,12 +10,13 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-firebase-auth',
-    version="1.0.0",
+    version="1.0.3",
     packages=find_packages(),
     install_requires=[
         'firebase-admin',
         'djangorestframework'
     ],
+    url='https://github.com/maycuatroi/django-firebase-auth',
     include_package_data=True,
     license='MIT License',
     description='Django authentication middle ware using Firebase Authentication Service',
