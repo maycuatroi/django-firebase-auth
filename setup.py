@@ -1,8 +1,10 @@
 import os
+from pathlib import Path
+
 from setuptools import find_packages, setup
 
-with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
-    long_description = readme.read()
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 

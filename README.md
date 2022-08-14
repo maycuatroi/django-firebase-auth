@@ -12,11 +12,14 @@ Project provide Django authentication middle ware using Firebase Authentication 
 ```bash
 pip install django-firebase-auth
 ```
+
 [Generate Firebase Credentials](#generate-firebase-credentials-file)
 
 ## Usage
 
 ### Settings
+
+#### 1. Setting credentials
 
 - Credentials from file
 
@@ -45,6 +48,16 @@ FIREBASE_CREDENTIALS_DICT = {
 ```
 
 </details>
+
+#### 2. Setting authentication backend
+
+```python
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "django_firebase_auth.firebase_auth.FirebaseAuthentication",
+    ),
+}
+```
 
 # Generate Firebase Credentials file
 
