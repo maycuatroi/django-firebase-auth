@@ -20,6 +20,7 @@ setup(
     license='MIT License',
     description='Django authentication middle ware using Firebase Authentication Service',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Nguyen Anh Binh',
     author_email='sometimesocrazy@gmail.com',
 )
