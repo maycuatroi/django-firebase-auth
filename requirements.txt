@@ -1,0 +1,4 @@
+setuptools
+django
+djangorestframework
+firebase-admin
