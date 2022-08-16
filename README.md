@@ -49,7 +49,17 @@ FIREBASE_CREDENTIALS_DICT = {
 
 </details>
 
-#### 2. Setting authentication backend
+### 2. Add installed apps:
+
+```python
+    
+INSTALLED_APPS = [
+    "...",
+    "django_firebase_auth",
+]
+```
+
+#### 3. Setting authentication backend
 
 ```python
 REST_FRAMEWORK = {
