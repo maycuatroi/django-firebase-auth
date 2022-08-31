@@ -15,6 +15,7 @@ from google.oauth2.id_token import verify_oauth2_token
 from google_auth_httplib2 import Request
 from rest_framework import authentication, status
 from rest_framework.exceptions import APIException
+
 from django_firebase_auth.models import UserFirebaseProfile
 
 
@@ -77,7 +78,10 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
         if host.startswith("localhost") and not auth_header.startswith("Bearer ") and DEBUG:
             return User.objects.get(username=auth_header), None
         id_token = auth_header.split(" ").pop()
-        decoded_token = jwt.decode(id_token, verify=False)
+        try:
+            decoded_token = jwt.decode(id_token, verify=False)
+        except ValueError as e:
+            raise InvalidAuthToken() from e
         is_expired = (
                 datetime.datetime.fromtimestamp(decoded_token["exp"])
                 < datetime.datetime.now()
