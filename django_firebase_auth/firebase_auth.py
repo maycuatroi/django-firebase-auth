@@ -137,8 +137,9 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
         first_name(str): first name of user
         last_name(str): last name of user
         """
-        first_name = display_name.split(" ")[0]
+        names = display_name.split(" ")
+        first_name = names[0]
         last_name = None
-        if len(display_name) > 1:
-            last_name = display_name.split(" ")[1]
+        if len(names) > 1:
+            last_name = names[1]
         return first_name, last_name
