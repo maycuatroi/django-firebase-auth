@@ -75,7 +75,11 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
         if not auth_header:
             return None
         host = request.get_host()
-        if host.startswith("localhost") and not auth_header.startswith("Bearer ") and DEBUG:
+        if (
+            host.startswith("localhost")
+            and not auth_header.startswith("Bearer ")
+            and DEBUG
+        ):
             return User.objects.get(username=auth_header), None
         id_token = auth_header.split(" ").pop()
         try:
@@ -83,8 +87,8 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
         except ValueError as e:
             raise InvalidAuthToken() from e
         is_expired = (
-                datetime.datetime.fromtimestamp(decoded_token["exp"])
-                < datetime.datetime.now()
+            datetime.datetime.fromtimestamp(decoded_token["exp"])
+            < datetime.datetime.now()
         )
         if is_expired:
             raise InvalidAuthToken("Authorization token is expired")
@@ -97,18 +101,19 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
             return None
 
         striped_user_name = decoded_token["email"].split("@")[0]
-        display_name = decoded_token.get('name', striped_user_name)
+        display_name = decoded_token.get("name", striped_user_name)
         first_name, last_name = self.convert_user_display_name(display_name)
         user: User = User.objects.get_or_create(
             email=decoded_token.get("email"),
             defaults={
-                "username":   striped_user_name,
+                "username": striped_user_name,
                 "first_name": first_name,
-                "last_name":  last_name,
+                "last_name": last_name,
             },
         )[0]
-        profile: UserFirebaseProfile = \
-            UserFirebaseProfile.objects.get_or_create(user=user, uid=decoded_token.get("uid"))[0]
+        profile: UserFirebaseProfile = UserFirebaseProfile.objects.get_or_create(
+            user=user, uid=decoded_token.get("uid")
+        )[0]
 
         if decoded_token.get("picture"):
             profile.photo_url = decoded_token.get("picture")
@@ -134,6 +139,6 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
         """
         first_name = display_name.split(" ")[0]
         last_name = None
-        if len(display_name)>1:
+        if len(display_name) > 1:
             last_name = display_name.split(" ")[1]
         return first_name, last_name
