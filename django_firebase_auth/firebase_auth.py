@@ -101,15 +101,20 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
             return None
 
         striped_user_name = decoded_token["email"].split("@")[0]
-        display_name = decoded_token.get("name", striped_user_name)
-        first_name, last_name = self.convert_user_display_name(display_name)
+        defaults = {
+            "username": striped_user_name
+        }
+        # There are some instances where the display_name may come as null from firebase
+        display_name = decoded_token.get("name")
+        # If we have display_name, let's try and figure the first name and last name
+        if display_name:
+            first_name, last_name = self.convert_user_display_name(display_name)
+            defaults["first_name"] = first_name
+            if last_name:
+                defaults["last_name"] = last_name        
         user: User = User.objects.get_or_create(
             email=decoded_token.get("email"),
-            defaults={
-                "username": striped_user_name,
-                "first_name": first_name,
-                "last_name": last_name,
-            },
+            defaults=defaults,
         )[0]
         profile: UserFirebaseProfile = UserFirebaseProfile.objects.get_or_create(
             user=user, uid=decoded_token.get("uid")
