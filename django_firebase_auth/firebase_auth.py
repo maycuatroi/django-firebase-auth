@@ -73,7 +73,7 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.META.get("HTTP_AUTHORIZATION")
         if not auth_header:
-            return None
+            raise InvalidAuthToken("Authorization header not present")
         host = request.get_host()
         if host.startswith("localhost") and not auth_header.startswith("Bearer ") and DEBUG:
             return User.objects.get(username=auth_header), None
