@@ -69,6 +69,24 @@ def auth_with_application(id_token, decoded_token):
     return decoded_token
 
 
+def djb2(seed):
+    """
+        djb2 is a hash function that was created by Dan Bernstein
+        and presented in the article "Notes on hashing" in the April 1997
+        issue of comp.lang.c.
+
+        The hash function is designed to be very fast,
+        and produces a hash value that is almost identical for all strings,
+        even those that are very long.
+    """
+    # http://www.cse.yorku.ca/~oz/hash.html
+
+    hash = 5381
+    for c in seed:
+        hash = ((hash << 5) + hash) + ord(c)
+
+    return hex(hash & 0xffffffff)[2:]
+
 class FirebaseAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.META.get("HTTP_AUTHORIZATION")
@@ -99,10 +117,13 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
 
         if not id_token or not decoded_token:
             return None
-
+        
         striped_user_name = decoded_token["email"].split("@")[0]
+        # Let's add random chars after the stiped username
+        # There may be the case where some@email1.com and some@email2.com users register
+        # We will generate random string using the email as seed
         defaults = {
-            "username": striped_user_name
+            "username": f"{striped_user_name}#{djb2(decoded_token['email'])}"
         }
         # There are some instances where the display_name may come as null from firebase
         display_name = decoded_token.get("name")
