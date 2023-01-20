@@ -69,6 +69,25 @@ def auth_with_application(id_token, decoded_token):
     return decoded_token
 
 
+def djb2(seed):
+    """
+    djb2 is a hash function that was created by Dan Bernstein
+    and presented in the article "Notes on hashing" in the April 1997
+    issue of comp.lang.c.
+
+    The hash function is designed to be very fast,
+    and produces a hash value that is almost identical for all strings,
+    even those that are very long.
+    """
+    # http://www.cse.yorku.ca/~oz/hash.html
+
+    hash = 5381
+    for c in seed:
+        hash = ((hash << 5) + hash) + ord(c)
+
+    return hex(hash & 0xFFFFFFFF)[2:]
+
+
 class FirebaseAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.META.get("HTTP_AUTHORIZATION")
@@ -101,9 +120,10 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
             return None
 
         striped_user_name = decoded_token["email"].split("@")[0]
-        defaults = {
-            "username": striped_user_name
-        }
+        # Let's add random chars after the stiped username
+        # There may be the case where some@email1.com and some@email2.com users register
+        # We will generate random string using the email as seed
+        defaults = {"username": f"{striped_user_name}#{djb2(decoded_token['email'])}"}
         # There are some instances where the display_name may come as null from firebase
         display_name = decoded_token.get("name")
         # If we have display_name, let's try and figure the first name and last name
@@ -111,7 +131,7 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
             first_name, last_name = self.convert_user_display_name(display_name)
             defaults["first_name"] = first_name
             if last_name:
-                defaults["last_name"] = last_name        
+                defaults["last_name"] = last_name
         user: User = User.objects.get_or_create(
             email=decoded_token.get("email"),
             defaults=defaults,
