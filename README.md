@@ -34,16 +34,16 @@ FIREBASE_CREDENTIALS_FILE = '<YOUR FIREBASE CREDENTIALS PATH>'  # 'firebase-cred
 
 ```python
 FIREBASE_CREDENTIALS_DICT = {
-    "type":                        "service_account",
-    "project_id":                  "<YOUR PROJECT ID>",
-    "private_key_id":              "<YOUR PRIVATE KEY ID>",
-    "private_key":                 '<YOUR PRIVATE KEY>',
-    "client_email":                "<CLIENT EMAIL>",
-    "client_id":                   "<CLIENT ID>",
-    "auth_uri":                    "https://accounts.google.com/o/oauth2/auth",
-    "token_uri":                   "https://oauth2.googleapis.com/token",
+    "type": "service_account",
+    "project_id": "<YOUR PROJECT ID>",
+    "private_key_id": "<YOUR PRIVATE KEY ID>",
+    "private_key": '<YOUR PRIVATE KEY>',
+    "client_email": "<CLIENT EMAIL>",
+    "client_id": "<CLIENT ID>",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url":        "<CERT URL>"
+    "client_x509_cert_url": "<CERT URL>"
 }
 ```
 
@@ -52,7 +52,7 @@ FIREBASE_CREDENTIALS_DICT = {
 ### 2. Add installed apps:
 
 ```python
-    
+
 INSTALLED_APPS = [
     "...",
     "django_firebase_auth",
@@ -82,3 +82,8 @@ Add Firebase credentials to settings.py
 
 Generate Firebase credentials from Firebase console
 ![img.png](docs/img.png)
+
+## TODO:
+
+- [x] Support supabase
+- [ ] Optimize session management
