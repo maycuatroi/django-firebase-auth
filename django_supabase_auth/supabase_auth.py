@@ -6,9 +6,10 @@ from django_supabase_auth.models import SupabaseUserProfile
 
 
 class SupabaseAuth(AbstractAuthentication):
-    def _get_or_create_profile(self, user, uid):
+    def _get_or_create_profile(self, user, uid, avatar):
         return SupabaseUserProfile.objects.get_or_create(
-            id=user.id
+            user=user,
+            defaults={"uid": uid, "photo_url": avatar},
         )[0]
 
     def _verify_token(self, id_token):

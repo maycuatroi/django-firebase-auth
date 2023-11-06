@@ -131,8 +131,17 @@ class AbstractAuthentication(authentication.BaseAuthentication):
             email=decoded_token.get("email"),
             defaults=defaults,
         )[0]
-        uid = decoded_token.get("uid")
-        profile: UserFirebaseProfile = self._get_or_create_profile(user, uid)
+        avatar_url = decoded_token['user_metadata']['avatar_url']
+        uid = decoded_token['sub']
+        full_name = decoded_token['user_metadata']['full_name']
+        first_name = full_name.split(" ")[0]
+        last_name = ' '.join(full_name.split(" ")[1:]) if len(full_name.split(" ")) > 1 else ''
+        profile: UserFirebaseProfile = self._get_or_create_profile(user, uid=uid, avatar=avatar_url)
+
+        if user.first_name != first_name or user.last_name != last_name:
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save(update_fields=["first_name", "last_name"])
 
         if decoded_token.get("picture"):
             profile.photo_url = decoded_token.get("picture")
@@ -148,7 +157,7 @@ class AbstractAuthentication(authentication.BaseAuthentication):
         return user, None
 
     @abc.abstractmethod
-    def _get_or_create_profile(self, user, uid):
+    def _get_or_create_profile(self, user, uid, avatar):
         raise NotImplementedError("This method should be implemented in child class")
 
     def convert_user_display_name(self, display_name: str):
@@ -166,6 +175,7 @@ class AbstractAuthentication(authentication.BaseAuthentication):
         if len(names) > 1:
             last_name = names[1]
         return first_name, last_name
+
     @abc.abstractmethod
     def _verify_token(self, id_token):
         raise NotImplementedError("This method should be implemented in child class")
