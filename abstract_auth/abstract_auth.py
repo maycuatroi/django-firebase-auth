@@ -16,7 +16,6 @@ from google_auth_httplib2 import Request
 from rest_framework import authentication, status
 from rest_framework.exceptions import APIException
 
-from django_firebase_auth.models import UserFirebaseProfile
 
 
 class NoAuthToken(APIException):
