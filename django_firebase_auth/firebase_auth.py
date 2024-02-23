@@ -7,12 +7,12 @@ Using firebase authentication (with web)
 import firebase_admin.auth
 
 from abstract_auth.abstract_auth import AbstractAuthentication
-from django_firebase_auth.models import UserFirebaseProfile
+from django_firebase_auth.models import AuthFirebaseProfile
 
 
 class FirebaseAuthentication(AbstractAuthentication):
     def _get_or_create_profile(self, user, uid):
-        return UserFirebaseProfile.objects.get_or_create(
+        return AuthFirebaseProfile.objects.get_or_create(
             user=user,
         )[0]
 

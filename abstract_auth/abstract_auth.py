@@ -17,7 +17,6 @@ from rest_framework import authentication, status
 from rest_framework.exceptions import APIException
 
 
-
 class NoAuthToken(APIException):
     status_code = status.HTTP_401_UNAUTHORIZED
     default_detail = "No authentication token provided"
@@ -83,12 +82,13 @@ class AbstractAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.META.get("HTTP_AUTHORIZATION")
         if not auth_header:
-            raise InvalidAuthToken("Authorization header not present")
+            # return AnonymousUser, None
+            return None
         host = request.get_host()
         if (
-                host.startswith("localhost")
-                and not auth_header.startswith("Bearer ")
-                and DEBUG
+            host.startswith("localhost")
+            and not auth_header.startswith("Bearer ")
+            and DEBUG
         ):
             return User.objects.get(username=auth_header), None
         id_token = auth_header.split(" ").pop()
@@ -97,12 +97,12 @@ class AbstractAuthentication(authentication.BaseAuthentication):
         except ValueError as e:
             raise InvalidAuthToken() from e
         is_expired = (
-                datetime.datetime.fromtimestamp(decoded_token["exp"])
-                < datetime.datetime.now()
+            datetime.datetime.fromtimestamp(decoded_token["exp"])
+            < datetime.datetime.now()
         )
         if is_expired:
             raise InvalidAuthToken("Authorization token is expired")
-        if "supabase" in decoded_token.get('iss'):
+        if "supabase" in decoded_token.get("iss"):
             try:
                 authenticated_user = self._verify_token(id_token)
             except ValueError as e:
@@ -130,12 +130,16 @@ class AbstractAuthentication(authentication.BaseAuthentication):
             email=decoded_token.get("email"),
             defaults=defaults,
         )[0]
-        avatar_url = decoded_token['user_metadata']['avatar_url']
-        uid = decoded_token['sub']
-        full_name = decoded_token['user_metadata']['full_name']
+        avatar_url = decoded_token["user_metadata"]["avatar_url"]
+        uid = decoded_token["sub"]
+        full_name = decoded_token["user_metadata"]["full_name"]
         first_name = full_name.split(" ")[0]
-        last_name = ' '.join(full_name.split(" ")[1:]) if len(full_name.split(" ")) > 1 else ''
-        profile: UserFirebaseProfile = self._get_or_create_profile(user, uid=uid, avatar=avatar_url)
+        last_name = (
+            " ".join(full_name.split(" ")[1:]) if len(full_name.split(" ")) > 1 else ""
+        )
+        profile: UserFirebaseProfile = self._get_or_create_profile(
+            user, uid=uid, avatar=avatar_url
+        )
 
         if user.first_name != first_name or user.last_name != last_name:
             user.first_name = first_name

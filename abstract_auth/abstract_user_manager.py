@@ -19,8 +19,10 @@ class AbstractUserManager(DefaultUserManager):
         return user
 
     @abc.abstractmethod
-    def _service_create_user(self, email, password, phone_number=None, display_name=None):
-       raise NotImplementedError("This method should be implemented in child class")
+    def _service_create_user(
+        self, email, password, phone_number=None, display_name=None
+    ):
+        raise NotImplementedError("This method should be implemented in child class")
 
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)
