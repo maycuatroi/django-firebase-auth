@@ -2,7 +2,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 
-
 class FirebaseAuthTokenSerializer(serializers.Serializer):
     firebase_auth_token = serializers.CharField()
 

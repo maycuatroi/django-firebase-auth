@@ -3,6 +3,7 @@ Handle the authentication of the user.
 Using google authentication (with application)
 Using firebase authentication (with web)
 """
+
 import abc
 import datetime
 
@@ -79,10 +80,13 @@ def djb2(seed):
 
 
 class AbstractAuthentication(authentication.BaseAuthentication):
-    token_post_index_name= "id_token"
+    token_post_index_name = "id_token"
+
     def authenticate(self, request):
         auth_header = request.META.get("HTTP_AUTHORIZATION") or ""
-        id_token = request.data.get(self.token_post_index_name) or auth_header.split(" ").pop()
+        id_token = (
+            request.data.get(self.token_post_index_name) or auth_header.split(" ").pop()
+        )
         if not auth_header and not id_token:
             # return AnonymousUser, None
             return None
@@ -112,7 +116,7 @@ class AbstractAuthentication(authentication.BaseAuthentication):
         if not id_token or not decoded_token:
             return None
 
-        striped_user_name = authenticated_user['email'].split("@")[0]
+        striped_user_name = authenticated_user["email"].split("@")[0]
         # Let's add random chars after the stiped username
         # There may be the case where some@email1.com and some@email2.com users register
         # We will generate random string using the email as seed
@@ -130,15 +134,13 @@ class AbstractAuthentication(authentication.BaseAuthentication):
             defaults=defaults,
         )[0]
         avatar_url = authenticated_user.get("picture")
-        uid =authenticated_user.get("uid")
+        uid = authenticated_user.get("uid")
         full_name = authenticated_user.get("name")
         first_name = full_name.split(" ")[0]
         last_name = (
             " ".join(full_name.split(" ")[1:]) if len(full_name.split(" ")) > 1 else ""
         )
-        profile = self._get_or_create_profile(
-           user=user, uid=uid, avatar=avatar_url
-        )
+        profile = self._get_or_create_profile(user=user, uid=uid, avatar=avatar_url)
 
         if user.first_name != first_name or user.last_name != last_name:
             user.first_name = first_name

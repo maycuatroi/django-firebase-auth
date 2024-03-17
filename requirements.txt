@@ -1,5 +1,5 @@
 setuptools
 django
 djangorestframework
-firebase-admin
+firebase-admin>=6.5.0
 supabase
