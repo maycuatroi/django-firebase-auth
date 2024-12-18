@@ -5,12 +5,13 @@ from setuptools import find_packages, setup
 
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
+version = (this_directory / "version.txt").read_text().strip()
 
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name="django-firebase-auth",
-    version="1.2.1",
+    version=version,
     packages=find_packages(),
     install_requires=["firebase-admin", "djangorestframework"],
     url="https://github.com/maycuatroi/django-firebase-auth",

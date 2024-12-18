@@ -9,19 +9,82 @@
 name: Upload Python Package
 
 on:
+  push:
+    branches:
+      - main
   release:
     types: [published]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  deploy:
-
+  create-release:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+          
+      - name: Update version
+        id: update_version
+        run: |
+          # Read current version
+          CURRENT_VERSION=$(cat version.txt)
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Split version into parts
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+          MAJOR="${VERSION_PARTS[0]}"
+          MINOR="${VERSION_PARTS[1]}"
+          PATCH="${VERSION_PARTS[2]}"
+          
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+          echo "New version: $NEW_VERSION"
+          
+          # Update version.txt with new version
+          echo "$NEW_VERSION" > version.txt
+          
+          # Set output for later steps
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Commit version update
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add version.txt
+          git commit -m "Bump version to ${{ steps.update_version.outputs.version }}"
+          git push
+          
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.update_version.outputs.version }}
+          release_name: Release v${{ steps.update_version.outputs.version }}
+          draft: false
+          prerelease: false
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [create-release]
+    if: github.event_name == 'push' || github.event_name == 'release'
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: main
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
