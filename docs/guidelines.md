@@ -56,3 +56,46 @@ urlpatterns = [
 
 The login view expects a `firebase_auth_token` in the request body and returns the authenticated user.
 
+## Front-end Integration
+
+Your client application should obtain an ID token using Firebase or Supabase
+libraries and send it to the login endpoint. Below are examples for React and
+Angular projects.
+
+### React Example
+
+```javascript
+import { getAuth } from "firebase/auth";
+
+export async function login() {
+  const auth = getAuth();
+  const token = await auth.currentUser?.getIdToken();
+  const response = await fetch("/firebase-auth/login/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ firebase_auth_token: token })
+  });
+  return response.json();
+}
+```
+
+### Angular Example
+
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { getAuth } from 'firebase/auth';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  constructor(private http: HttpClient) {}
+
+  async login() {
+    const token = await getAuth().currentUser?.getIdToken();
+    return this.http.post('/firebase-auth/login/', {
+      firebase_auth_token: token
+    });
+  }
+}
+```
+

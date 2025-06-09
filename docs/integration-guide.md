@@ -63,3 +63,45 @@ python manage.py migrate
 
 Obtain an ID token from your client (Firebase SDK or Supabase) and make a POST request to `/firebase-auth/login/` with the token in the body. The user will be created or updated automatically.
 
+## 7. Example React Request
+
+Below is a minimal example showing how a React application can send the ID token
+to the backend.
+
+```javascript
+import { getAuth } from "firebase/auth";
+
+async function login() {
+  const token = await getAuth().currentUser?.getIdToken();
+  const res = await fetch("/firebase-auth/login/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ firebase_auth_token: token })
+  });
+  return res.json();
+}
+```
+
+## 8. Example Angular Service
+
+For Angular projects you can create an injectable service that wraps the HTTP
+request:
+
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { getAuth } from 'firebase/auth';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  constructor(private http: HttpClient) {}
+
+  async login() {
+    const token = await getAuth().currentUser?.getIdToken();
+    return this.http.post('/firebase-auth/login/', {
+      firebase_auth_token: token
+    });
+  }
+}
+```
+
